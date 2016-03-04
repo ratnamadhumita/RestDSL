@@ -1,24 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans
-  		  http://www.springframework.org/schema/beans/spring-beans.xsd
-  		http://camel.apache.org/schema/spring
-		  http://camel.apache.org/schema/spring/camel-spring.xsd">
-		  
-	      <!-- <bean id="RestletComponent" class="org.restlet.Component"/>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+             http://www.osgi.org/xmlns/blueprint/v1.0.0 
+             http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://camel.apache.org/schema/blueprint 
+             http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-		    <bean id="RestletComponentService" class="org.apache.camel.component.restlet.RestletComponent">
-		        <constructor-arg ref="RestletComponent" />
-		    </bean>  -->
+    <service interface="javax.servlet.http.HttpServlet">
+        <service-properties>
+            <entry key="alias" value="/api-docs/*"/>
+            <entry key="init-prefix" value="init."/>
+            <entry key="init.base.path" value="//localhost:8080/"/>
+            <entry key="init.api.path" value="//localhost:8181/api-docs"/>
+            <entry key="init.api.title" value="Camel Rest Example API"/>
+            <entry key="init.api.version" value="1.2"/>
+            <entry key="init.api.description"
+                value="Camel Rest Example with Swagger that provides an User REST service"/>
+        </service-properties>
+        <bean class="org.apache.camel.component.swagger.DefaultCamelSwaggerServlet" />
+    </service>
 
-		    <camelContext trace="true" xmlns="http://camel.apache.org/schema/spring">
-		        <packageScan>
-		            <package>com.restdsl.camel.java</package>
-		        </packageScan>
-		        
-		    </camelContext>
+    
+    <camelContext id="log-example-context"
+        xmlns="http://camel.apache.org/schema/blueprint">
 
+        <restConfiguration component="jetty" port="8180"/>
+        <rest path="/say">
+            <get uri="/hello">
+                <to uri="direct:hello"/>
+            </get>
+            <get uri="/bye" consumes="application/json">
+                <to uri="direct:bye"/>
+            </get>
+            <post uri="/bye">
+                <to uri="mock:update"/>
+            </post>
+        </rest>
+        <route id="rte1-log-example">
+            <from uri="direct:hello"/>
+            <transform>
+                <constant>Hello World</constant>
+            </transform>
+        </route>
+        <route id="rte2-log-example">
+            <from uri="direct:bye"/>
+            <transform>
+                <constant>Bye World</constant>
+            </transform>
+        </route>
 
-</beans>
+    </camelContext>
+
+</blueprint>

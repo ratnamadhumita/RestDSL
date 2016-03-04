@@ -16,11 +16,17 @@ public class RestDSLRouteBuilder extends RouteBuilder {
      */
     public void configure() {
 
-    	 restConfiguration().component("jetty")
+   /* 	restConfiguration().component("jetty")
          .bindingMode(RestBindingMode.json)
          .dataFormatProperty("prettyPrint", "true")
          .port(8080);
-
+*/
+    	
+    	restConfiguration().component("servlet")
+    	.bindingMode(RestBindingMode.json)
+         .dataFormatProperty("prettyPrint", "true")
+         .port(8080);
+    	
     	 rest
     	 ("/CommonServices").description("Test rest service")
          .consumes("application/json").produces("application/json")
